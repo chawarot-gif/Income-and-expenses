@@ -1,0 +1,45 @@
+{
+  "entities": {
+    "Transaction": {
+      "title": "Transaction",
+      "description": "An income or expense transaction record",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string", "description": "Owner user ID" },
+        "type": { "type": "string", "enum": ["income", "expense"], "description": "Transaction type" },
+        "amount": { "type": "number", "description": "Transaction amount in THB" },
+        "category": { "type": "string", "description": "Transaction category name" },
+        "date": { "type": "string", "description": "Date of transaction in YYYY-MM-DD" },
+        "note": { "type": "string", "maxLength": 255, "description": "Optional note or description" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "type", "amount", "category", "date", "createdAt"]
+    },
+    "Category": {
+      "title": "Category",
+      "description": "Custom income or expense category",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "name": { "type": "string", "maxLength": 50 },
+        "type": { "type": "string", "enum": ["income", "expense"] },
+        "icon": { "type": "string" },
+        "color": { "type": "string" }
+      },
+      "required": ["userId", "name", "type"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}/transactions/{transactionId}": {
+      "schema": "Transaction",
+      "description": "User's real-time income and expense entries"
+    },
+    "/users/{userId}/categories/{categoryId}": {
+      "schema": "Category",
+      "description": "User's customized income and expense categories"
+    }
+  }
+}

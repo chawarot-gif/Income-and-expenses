@@ -1,0 +1,6 @@
+{
+  "name": "Income and Expenses",
+  "description": "เว็บแอปพลิเคชันจัดการรายรับรายจ่าย พร้อมบันทึกข้อมูลเรียลไทม์ผ่าน Firebase Firestore และกราฟสรุปยอดในแดชบอร์ด",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

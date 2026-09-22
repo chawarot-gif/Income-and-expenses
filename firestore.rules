@@ -1,0 +1,83 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+    function incoming() {
+      return request.resource.data;
+    }
+    function existing() {
+      return resource.data;
+    }
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    function isValidTransaction(data, userId) {
+      return data.keys().hasAll(['userId', 'type', 'amount', 'category', 'date', 'createdAt'])
+        && data.keys().hasOnly(['userId', 'type', 'amount', 'category', 'date', 'note', 'createdAt', 'updatedAt'])
+        && data.userId == userId
+        && data.userId == request.auth.uid
+        && (data.type == 'income' || data.type == 'expense')
+        && (data.amount is number || data.amount is int || data.amount is float)
+        && data.amount > 0
+        && data.amount <= 1000000000
+        && data.category is string && data.category.size() >= 1 && data.category.size() <= 50
+        && data.date is string && data.date.size() <= 10
+        && (!('note' in data) || (data.note is string && data.note.size() <= 255))
+        && (!('updatedAt' in data) || data.updatedAt is timestamp);
+    }
+
+    function isValidCategory(data, userId) {
+      return data.keys().hasAll(['userId', 'name', 'type'])
+        && data.keys().hasOnly(['userId', 'name', 'type', 'icon', 'color', 'createdAt'])
+        && data.userId == userId
+        && data.userId == request.auth.uid
+        && (data.type == 'income' || data.type == 'expense')
+        && data.name is string && data.name.size() >= 1 && data.name.size() <= 50
+        && (!('icon' in data) || (data.icon is string && data.icon.size() <= 50))
+        && (!('color' in data) || (data.color is string && data.color.size() <= 30));
+    }
+
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+
+      match /transactions/{transactionId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId)
+          && isValidId(transactionId)
+          && isValidTransaction(incoming(), userId)
+          && incoming().createdAt == request.time;
+        allow update: if isOwner(userId)
+          && isValidId(transactionId)
+          && isValidTransaction(incoming(), userId)
+          && incoming().userId == existing().userId
+          && incoming().createdAt == existing().createdAt
+          && incoming().updatedAt == request.time
+          && incoming().diff(existing()).affectedKeys().hasOnly(['type', 'amount', 'category', 'date', 'note', 'updatedAt']);
+        allow delete: if isOwner(userId) && isValidId(transactionId);
+      }
+
+      match /categories/{categoryId} {
+        allow get, list: if isOwner(userId);
+        allow create: if isOwner(userId)
+          && isValidId(categoryId)
+          && isValidCategory(incoming(), userId);
+        allow update: if isOwner(userId)
+          && isValidId(categoryId)
+          && isValidCategory(incoming(), userId)
+          && incoming().userId == existing().userId
+          && incoming().diff(existing()).affectedKeys().hasOnly(['name', 'type', 'icon', 'color']);
+        allow delete: if isOwner(userId) && isValidId(categoryId);
+      }
+    }
+  }
+}
