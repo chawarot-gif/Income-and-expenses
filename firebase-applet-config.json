@@ -1,12 +1,12 @@
 {
   "projectId": "income-and-expenses-35ac6",
-  "appId": "(appId ที่คัดลอกมา)",
-  "apiKey": "(apiKey ที่คัดลอกมา)",
+  "appId": "1:288045327498:web:6be77270adeac15a7b7973",
+  "apiKey": "AIzaSyAlCsBS9ntgL31V7WFM3dj7gOMMLc2BLWY",
   "authDomain": "income-and-expenses-35ac6.firebaseapp.com",
   "firestoreDatabaseId": "(default)",
-  "storageBucket": "(storageBucket ที่คัดลอกมา)",
-  "messagingSenderId": "(messagingSenderId ที่คัดลอกมา)",
-  "measurementId": "",
+  "storageBucket": "income-and-expenses-35ac6.firebasestorage.app",
+  "messagingSenderId": "288045327498",
+  "measurementId": "G-2Y09R2FQS1",
   "oAuthClientId": "",
   "recaptchaSiteKey": ""
 }
